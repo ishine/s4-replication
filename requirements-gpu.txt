@@ -17,3 +17,6 @@ tqdm
 seaborn
 celluloid
 torchtext
+tensorflow.io
+datasets
+wandb

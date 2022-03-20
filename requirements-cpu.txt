@@ -16,3 +16,12 @@ tensorflow
 tqdm
 seaborn
 celluloid
+tensorflow.io
+tensorflow
+torchtext
+transformers
+numpy
+datasets
+wandb
+
+
