@@ -368,7 +368,7 @@ def create_imdb_classification_dataset(bsz=128):
 
 
 # listops
-def create_listops_classification_dataset(list_dir, batch_size):
+def create_listops_classification_dataset(list_dir, bsz):
     # global constants, default maximal length is 2048
     APPEND_BOS = False
     APPEND_EOS = True
@@ -452,10 +452,10 @@ def create_listops_classification_dataset(list_dir, batch_size):
         return batchfy_input_ids[:-1].unsqueeze(-1), batchfy_labels
 
     trainloader = torch.utils.data.DataLoader(
-        dataset['train'], batch_size=batch_size, shuffle=True, collate_fn=listops_collate)
+        dataset['train'], batch_size=bsz, shuffle=True, collate_fn=listops_collate)
 
     testloader = torch.utils.data.DataLoader(
-        dataset['test'], batch_size=batch_size, shuffle=True, collate_fn=listops_collate)
+        dataset['test'], batch_size=bsz, shuffle=True, collate_fn=listops_collate)
 
     return trainloader, testloader, N_CLASSES, SEQ_LENGTH, IN_DIM
 
