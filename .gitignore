@@ -3,5 +3,3 @@ listops-1000
 .idea
 __pycache__
 .ipynb_checkpoints
-wandb
-data
