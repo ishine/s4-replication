@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 from datasets import load_dataset, DatasetDict
 from torch.utils.data import TensorDataset, random_split
 from tqdm import tqdm
-from sequence_dataset import SequenceDataset
+from .sequence_dataset import SequenceDataset
 
 # ### $sin(x)$
 # **Task**: Overfit to a 8-bit quantized sin(x) from 0 - 2*Pi -- sampled 360 times.
@@ -368,14 +368,13 @@ def create_imdb_classification_dataset(bsz=128):
 
 
 # listops
-def create_listops_classification_dataset(list_dir, bsz):
+def create_listops_classification_dataset(bsz):
     # global constants, default maximal length is 2048
+    list_dir = "listops-1000"
     APPEND_BOS = False
     APPEND_EOS = True
     N_WORKERS = 4
-    LOAD_WORDER = 10
-    MIN_FREQ = 15
-    SEQ_LENGTH, N_CLASSES, IN_DIM = 2048, 2, 10
+    SEQ_LENGTH, N_CLASSES, IN_DIM = 2048, 10, 1
 
     # def process_dataset(list_dir):
     #  tokenizer
