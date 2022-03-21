@@ -2,16 +2,21 @@
 
 ## Introduction
 
+Q: why at inference time, S4 is so fast?
 
-## Folder Structure
+## Replication Tasks
 
-## Replication Goals
+Q: two tasks and datasets
 
+## S4 Implementation
 
-## Datasets
+S4 archiecture
+
+Two different ways of implementation: batchfied normalization v.s. layer normalization
 
 
 ## Experiment 1: ListOPS
 
-
 ## Experiment 2: IMDB Review Classification
+
+## Conclusion
