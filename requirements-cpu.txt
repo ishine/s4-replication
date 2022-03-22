@@ -17,3 +17,10 @@ tqdm
 seaborn
 celluloid
 torchtext==0.11.1
+tensorflow.io
+tensorflow
+torchtext
+transformers
+numpy
+datasets
+wandb
