@@ -124,7 +124,7 @@ will affect the final results.
 | Models   | Train Accuracy | Test Accuracy     |
 | :---        |    :----:   |          ---: |
 | S4-JAX-LN      |   0.97     |  0.64  |
-| S4-Torch-LN  |  0.99       |   0.61  |
+| S4-Torch-LN  |  0.99       |   0.65  |
 | S4-Torch-BN  |    1.0     |   0.76  |
 | S4 Reported |   -      |    0.76   |
 
