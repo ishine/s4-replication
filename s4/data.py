@@ -292,10 +292,10 @@ def create_imdb_classification_dataset(bsz=128):
     # Constants, the default max length is 4096
     APPEND_BOS = False
     APPEND_EOS = True
-    LOAD_WORDER = 10
+    LOAD_WORDER = 20
     MIN_FREQ = 15
 
-    SEQ_LENGTH, N_CLASSES, IN_DIM = 2048, 2, 1
+    SEQ_LENGTH, N_CLASSES, IN_DIM = 4096, 2, 1
 
     # load data using huggingface datasets
     dataset = load_dataset("imdb")
@@ -312,7 +312,7 @@ def create_imdb_classification_dataset(bsz=128):
         num_proc=max(LOAD_WORDER, 1),
     )
 
-    print("byte characters for first example:", dataset['train']['tokens'][0])
+    # print("byte characters for first example:", dataset['train']['tokens'][0])
 
     # step two, build vocabulary based on the byte characters, each character appear at least MIN_FREQ times
     vocab = torchtext.vocab.build_vocab_from_iterator(
@@ -343,7 +343,7 @@ def create_imdb_classification_dataset(bsz=128):
         num_proc=max(LOAD_WORDER, 1),
     )
 
-    print("numericalize result for first example:", dataset['train']['input_ids'][0])
+    # print("numericalize result for first example:", dataset['train']['input_ids'][0])
 
     dataset['train'].set_format(type='torch', columns=['input_ids', 'label'])
     dataset['test'].set_format(type='torch', columns=['input_ids', 'label'])

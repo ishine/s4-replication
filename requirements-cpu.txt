@@ -16,3 +16,4 @@ tensorflow
 tqdm
 seaborn
 celluloid
+torchtext==0.11.1
