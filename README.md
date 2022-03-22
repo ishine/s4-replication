@@ -112,9 +112,6 @@ Later we found that the **normalization approach** that you have chosen will dir
 We compared three models with the original reported results to see the extent of which that we can reproduce the results, and further, to understand how those different choices of normalizations 
 will affect the final results. 
 
-Additionally, we found that the choice of random seed also will influence the result roughly in the range **(0.02,0.05)**.
-
-
 ### ListOps
 | Models   | Train Accuracy | Test Accuracy     |
 | :---        |    :----:   |          ---: |
@@ -133,4 +130,6 @@ Additionally, we found that the choice of random seed also will influence the re
 
 
 ## Conclusion
-We are very impressed with 
+We are very impressed with S4's capacity of modeling long sequences, and we are going to re-implement the layer normalization in JAX version for our next step. 
+
+Additionally, we found that the choice of random seed also will influence the result roughly in the range **(0.02,0.05)**.
