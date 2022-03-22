@@ -96,8 +96,7 @@ ListOps is a number list parsing task:  it is consisted of nested lists of mathe
 ## S4 Implementation
 
 ### S4 architecture
-
-### 
+![Complexity](images/architecture_s4.png)
 
 ## Experimental Results
 Basically, we focused on comparing result implemented in JAX version with the original reported one. However, we found that it was not easy to re-produce the result even though 
