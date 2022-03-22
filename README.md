@@ -88,6 +88,8 @@ To change the normalization, please go to ```state-spaces/config``` to choose th
 ## Replication Tasks
 
 ### ListOps
+ListOps is a number list parsing task:  it is consisted of nested lists of mathematical operations and a list of single-digit integers. The task is parse this latent tree, and get the results as shown in the example below. 
+![Complexity](images/listops_example.png)
 
 ### IMDB Review Classification
 
@@ -108,21 +110,28 @@ Later we found that the **normalization approach** that you have chosen will dir
 - S4-Torch-LN: the one that we adapted based on Albert Gu's original codebases and used the *batch normalization* too. 
 - S4-reported: direct results reported in the original paper Tale 4. 
 
+We compared three models with the original reported results to see the extent of which that we can reproduce the results, and further, to understand how those different choices of normalizations 
+will affect the final results. 
+
+Additionally, we found that the choice of random seed also will influence the result roughly in the range **(0.02,0.05)**.
+
 
 ### ListOps
 | Models   | Train Accuracy | Test Accuracy     |
 | :---        |    :----:   |          ---: |
-| S4-JAX      |        |    |
-| S4-Torch-LN  |         |     |
-| S4-Torch-BN  |          |      |
-| S4 Reported |         |       |
+| S4-JAX-LN      |    0.62    |  0.47  |
+| S4-Torch-LN  |     0.51   |    0.50 |
+| S4-Torch-BN  |    0.70       |   0.57   |
+| S4 Reported |     -    |   0.57    |
 
 ### IMDB Review Classification
 | Models   | Train Accuracy | Test Accuracy     |
 | :---        |    :----:   |          ---: |
-| S4-JAX      |        |    |
-| S4-Torch-LN  |         |     |
-| S4-Torch-BN  |          |      |
-| S4 Reported |         |       |
+| S4-JAX-LN      |   0.97     |  0.64  |
+| S4-Torch-LN  |  0.99       |   0.61  |
+| S4-Torch-BN  |    1.0     |   0.76  |
+| S4 Reported |   -      |    0.76   |
+
 
 ## Conclusion
+We are very impressed with 
