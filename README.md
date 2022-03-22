@@ -10,7 +10,7 @@ y(t)  = Cx(t) + Du(t)
 ```
 
 In this replication project, we are treating this state space model as established, and focused on 
-*how can we  leverage deep neural networks to efficiently parameterize three matrixs A,B,C*.
+*how can we  leverage deep neural networks to efficiently parameterize three matrices A,B,C*.
 
 **Why S4 is good at long sequence modeling?**
 
@@ -28,7 +28,7 @@ we can use the hidden state that is of 500 dimensions to reconstruct the entire 
 
 The below is a comparison of the complexity from different models adapted from the original paper:
 
-![SaShiMi](images/complexity_comparison.png )
+![Complexity](images/complexity_comparison.png )
 
 
 
@@ -63,7 +63,7 @@ We leverage the codes bases from [S4](https://github.com/HazyResearch/state-spac
 Similar to the above dataset downloading and processing. 
 
 ### Wandb Setup
-First create [WanDB](https://wandb.ai/site) account, and obtain the API Key. Go to the JAX version folder, and find the configuration file
+First create [WanDB](https://wandb.ai/site) account, and obtain the API Key. Go to the configuration folder ```state-spaces/config```, and find the configuration file
 for Wandb, and change the entity to yours. 
 
 ### Multi-GPU training
@@ -83,6 +83,7 @@ It might be slower, but this is the only way that we think would work if both Ke
 python -m train wandb=null experiment=s4-lra-listops
 python -m train wandb=null experiment=s4-lra-imdb
 ```
+To change the normalization, please go to ```state-spaces/config``` to choose the normalization approach that you prefer. 
 
 ## Replication Tasks
 
@@ -97,6 +98,31 @@ python -m train wandb=null experiment=s4-lra-imdb
 ### 
 
 ## Experimental Results
+Basically, we focused on comparing result implemented in JAX version with the original reported one. However, we found that it was not easy to re-produce the result even though 
+we first used the exact same parameters (except the number of GPUs) as illustrated in the original paper and its released codebases.
 
+Later we found that the **normalization approach** that you have chosen will directly influence reported results substantially. Hence we compare across four different models:
+
+- S4-JAX: the one that we used Sasha's codesbases to implement, which chose basically *layer normalization*. 
+- S4-Torch-LN: the one that we adapted based on Albert Gu's original codebases and used the *layer normalization* too. 
+- S4-Torch-LN: the one that we adapted based on Albert Gu's original codebases and used the *batch normalization* too. 
+- S4-reported: direct results reported in the original paper Tale 4. 
+
+
+### ListOps
+| Models   | Train Accuracy | Test Accuracy     |
+| :---        |    :----:   |          ---: |
+| S4-JAX      |        |    |
+| S4-Torch-LN  |         |     |
+| S4-Torch-BN  |          |      |
+| S4 Reported |         |       |
+
+### IMDB Review Classification
+| Models   | Train Accuracy | Test Accuracy     |
+| :---        |    :----:   |          ---: |
+| S4-JAX      |        |    |
+| S4-Torch-LN  |         |     |
+| S4-Torch-BN  |          |      |
+| S4 Reported |         |       |
 
 ## Conclusion
