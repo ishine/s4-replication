@@ -120,6 +120,8 @@ will affect the final results.
 | S4-Torch-BN  |    0.70       |   0.57   |
 | S4 Reported |     -    |   0.57    |
 
+![ListOps Acc](images/listops_val_acc.png) ![ListOps Loss](images/listops_val_loss.png)
+
 ### IMDB Review Classification
 | Models   | Train Accuracy | Test Accuracy     |
 | :---        |    :----:   |          ---: |
@@ -128,6 +130,7 @@ will affect the final results.
 | S4-Torch-BN  |    1.0     |   0.76  |
 | S4 Reported |   -      |    0.76   |
 
+![IMDB Acc](images/imdb_val_acc.png) ![IMDB Loss](images/imdb_val_loss.png)
 
 ## Conclusion
 We are very impressed with S4's capacity of modeling long sequences, and we are going to re-implement the layer normalization in JAX version for our next step. 
