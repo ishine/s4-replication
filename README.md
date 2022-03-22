@@ -3,10 +3,16 @@
 ## Introduction
 
 S4 is a new class of models that are based on the control theory: State space models. 
+```
+x'(t) = Ax(t) + Bu(t)
+y(t)  = Cx(t) + Du(t)
+```
 
- $$ \begin{aligned} x'(t) &= \boldsymbol{A}x(t) + \boldsymbol{B}u(t) \ y(t) &= \boldsymbol{C}x(t) + \boldsymbol{D}u(t) \end{aligned} $$ 
+In this replication project, we are treating this state space model as established, and focused on 
+*how can we  leverage deep neural networks to efficiently parameterize three matrixs A,B,C*.
 
-In the paper, they have mentioned a couple of times
+**What S4 can do?**
+In the paper, they have mentioned a couple of times:
 ```
 S4 can remember all the history. 
 ```
