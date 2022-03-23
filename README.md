@@ -50,8 +50,8 @@ Change the WanDB project, and entity in the ```train.py``` file if you would lik
 
 ### Experiment run
 ```
-python3.7 -m s4.train --dataset listops-classification --model s4 --epochs 50 --bsz 50 --d_model 64 --ssm_n 64 --lr 1e-2 --lr_schedule
-python3.7 -m s4.train --dataset cifar-classification --model s4 --epochs 100 --bsz 100 --d_model 128 --ssm_n 64 --lr 1e-2 --lr_schedule
+python -m s4.train --dataset listops-classification --model s4 --epochs 50 --bsz 50 --d_model 64 --ssm_n 64 --lr 1e-2 --lr_schedule
+python -m s4.train --dataset imdb-classification --model s4 --epochs 100 --bsz 100 --d_model 128 --ssm_n 64 --lr 1e-2 --lr_schedule
 ```
 
 
