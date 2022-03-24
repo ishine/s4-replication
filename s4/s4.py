@@ -99,7 +99,6 @@ from jax.nn.initializers import lecun_normal, uniform
 from jax.numpy.linalg import eig, inv, matrix_power
 from jax.scipy.signal import convolve
 
-
 rng = jax.random.PRNGKey(1)
 
 
@@ -540,7 +539,7 @@ if False:
 def log_step_initializer(dt_min=0.001, dt_max=0.1):
     def init(key, shape):
         return jax.random.uniform(key, shape) * (
-            np.log(dt_max) - np.log(dt_min)
+                np.log(dt_max) - np.log(dt_min)
         ) + np.log(dt_min)
 
     return init
@@ -629,13 +628,13 @@ class SequenceBlock(nn.Module):
     decode: bool = False
 
     def setup(self):
-        self.prenorm = True
+        # self.prenorm = True
         # self.batchnorm = True
         # if self.batchnorm:
         #     self.norm = nn.BatchNorm(axis_name='batch')
         # else:
         #     self.norm = nn.LayerNorm()
-        self.norm = nn.BatchNorm(use_running_average=not self.training)
+        # self.norm = nn.BatchNorm(use_running_average=not self.training)
         self.seq = self.layer(l_max=self.l_max, decode=self.decode)
         self.out = nn.Dense(self.d_model)
         self.drop = nn.Dropout(
@@ -645,15 +644,12 @@ class SequenceBlock(nn.Module):
         )
 
     def __call__(self, x):
-        if self.prenorm:
-            x2 = self.seq(self.norm(x))
-            z = self.drop(self.out(self.drop(nn.gelu(x2))))
-            return z + x
-        else:
-            x2 = self.seq(x)
-            z = self.drop(self.out(self.drop(nn.gelu(x2))))
-            return self.norm(z + x)
-
+        # print("x:", x)
+        x1 = nn.BatchNorm(use_running_average=not self.training)(x)
+        print("x1:", jax.numpy.array_equal(x, x1))
+        x2 = self.seq(x1)
+        z = self.drop(self.out(self.drop(nn.gelu(x2))))
+        return z + x
 
 # We can then stack a bunch of these blocks on top of each other
 # to produce a stack of SSM layers. This can be used for
@@ -694,7 +690,7 @@ class BatchStackedModel(nn.Module):
 
     def __call__(self, x):
         print(x.shape)
-        x = self.encoder(x) # shape batch size x sequence len x hidden dimension
+        x = self.encoder(x)  # shape batch size x sequence len x hidden dimension
         for layer in self.layers:
             x = layer(x)
         if self.classification:
@@ -1371,7 +1367,7 @@ def sample_mnist_prefix(path, model, length):
         image = im[0].numpy()
 
         cur = onp.array(image)
-        cur[:, START + 1 :, 0] = 0
+        cur[:, START + 1:, 0] = 0
         cur = np.array(cur)
 
         # Cache the first `start` inputs.
@@ -1407,7 +1403,6 @@ def sample_mnist_prefix(path, model, length):
             ax2.imshow(final2[k] / 256.0)
             fig.savefig("im%d.%d.png" % (j, k))
             print(j)
-
 
 # ### Experiments: QuickDraw
 
