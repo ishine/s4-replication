@@ -629,8 +629,14 @@ class SequenceBlock(nn.Module):
     decode: bool = False
 
     def setup(self):
+        self.prenorm = True
+        # self.batchnorm = True
+        # if self.batchnorm:
+        #     self.norm = nn.BatchNorm(axis_name='batch')
+        # else:
+        #     self.norm = nn.LayerNorm()
+        self.norm = nn.BatchNorm(use_running_average=not self.training)
         self.seq = self.layer(l_max=self.l_max, decode=self.decode)
-        self.norm = nn.LayerNorm()
         self.out = nn.Dense(self.d_model)
         self.drop = nn.Dropout(
             self.dropout,
@@ -639,17 +645,28 @@ class SequenceBlock(nn.Module):
         )
 
     def __call__(self, x):
-        x2 = self.seq(x)
-        z = self.drop(self.out(self.drop(nn.gelu(x2))))
-        return self.norm(z + x)
+        if self.prenorm:
+            x2 = self.seq(self.norm(x))
+            z = self.drop(self.out(self.drop(nn.gelu(x2))))
+            return z + x
+        else:
+            x2 = self.seq(x)
+            z = self.drop(self.out(self.drop(nn.gelu(x2))))
+            return self.norm(z + x)
 
 
 # We can then stack a bunch of these blocks on top of each other
 # to produce a stack of SSM layers. This can be used for
 # classification or generation in the standard way as a Transformer.
 
-
-class StackedModel(nn.Module):
+@partial(
+    nn.vmap,
+    variable_axes={"params": None, 'batch_stats': 0, "dropout": None, "cache": 0, "prime": None},
+    split_rngs={"params": False, "dropout": True},
+    in_axes=0,
+    out_axes=0,
+)
+class BatchStackedModel(nn.Module):
     layer: nn.Module
     d_output: int
     d_model: int
@@ -676,7 +693,8 @@ class StackedModel(nn.Module):
         ]
 
     def __call__(self, x):
-        x = self.encoder(x)
+        print(x.shape)
+        x = self.encoder(x) # shape batch size x sequence len x hidden dimension
         for layer in self.layers:
             x = layer(x)
         if self.classification:
@@ -690,13 +708,15 @@ class StackedModel(nn.Module):
 # handle RNN and parameter caching (described below).
 
 
-BatchStackedModel = nn.vmap(
-    StackedModel,
-    in_axes=0,
-    out_axes=0,
-    variable_axes={"params": None, "dropout": None, "cache": 0, "prime": None},
-    split_rngs={"params": False, "dropout": True},
-)
+# BatchStackedModel = nn.vmap(
+#     StackedModel,
+#     # in_axes=(0, None),
+#     in_axes=0,
+#     out_axes=0,
+#     # axis_name="batch",
+#     variable_axes={"params": None, 'batch_stats': 0, "dropout": None, "cache": 0, "prime": None},
+#     split_rngs={"params": False, "dropout": True},
+# )
 
 
 # Overall, this defines a sequence-to-sequence map of shape (batch size, sequence length, hidden dimension),

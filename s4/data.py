@@ -295,7 +295,7 @@ def create_imdb_classification_dataset(bsz=128):
     LOAD_WORDER = 20
     MIN_FREQ = 15
 
-    SEQ_LENGTH, N_CLASSES, IN_DIM = 4096, 2, 1
+    SEQ_LENGTH, N_CLASSES, IN_DIM = 2048, 2, 1
 
     # load data using huggingface datasets
     dataset = load_dataset("imdb")
