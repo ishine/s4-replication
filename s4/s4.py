@@ -661,14 +661,16 @@ class SequenceBlock(nn.Module):
         )
 
     def __call__(self, x):
-        x1 = self.norm(x)
-        # print("xxxx:", jax.numpy.array_equal(x, x1))
-        # print("x1 shape:", x1.shape)
-        x2 = self.seq(x1)
-        # print("x2 later:", x.shape)
-        z = self.drop(self.out(self.drop(nn.gelu(x2))))
+        @jax.vmap
+        def run(x):
+            # print("xxxx:", jax.numpy.array_equal(x, x1))
+            # print("x1 shape:", x1.shape)
+            x = self.seq(x)
+            # print("x2 later:", x.shape)
+            return self.drop(self.out(self.drop(nn.gelu(x))))
+        
         # print("z later:", x.shape)
-        return z + x
+        return x + run(self.norm(x))
 
 
 # We can then stack a bunch of these blocks on top of each other
