@@ -446,8 +446,6 @@ def create_listops_classification_dataset(bsz):
         batchfy_input_ids = torch.nn.utils.rnn.pad_sequence(
             batchfy_input_ids + [torch.zeros(SEQ_LENGTH)], padding_value=vocab["<pad>"], batch_first=True
         )
-        #         print(batchfy_input_ids)
-        #         print(batchfy_labels)
         return batchfy_input_ids[:-1].unsqueeze(-1), batchfy_labels
 
     trainloader = torch.utils.data.DataLoader(

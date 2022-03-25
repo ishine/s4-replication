@@ -226,6 +226,8 @@ def train_step(
                 rngs={"dropout": rng},
                 mutable=["batch_stats", "intermediates"],
             )
+            print("logits:", logits.shape)
+            print("batch_labels:", batch_labels.shape)
             loss = np.mean(cross_entropy_loss(logits, batch_labels))
         else:
             logits, mod_vars = model.apply(

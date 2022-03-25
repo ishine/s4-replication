@@ -92,6 +92,7 @@
 # to compile fast and efficient S4 layers.
 
 from functools import partial
+
 import jax
 import jax.numpy as np
 from flax import linen as nn
@@ -307,6 +308,7 @@ def example_ssm():
 if False:
     example_ssm()
 
+
 # <img src="line.gif" width="100%">
 
 # Neat! And that it was just 1 SSM, with 2 hidden states over 100 steps.
@@ -380,6 +382,7 @@ def non_circular_convolution(u, K, nofft=False):
         return convolve(u, K, mode="full")[: u.shape[0]]
     else:
         assert K.shape[0] == u.shape[0]
+        print("ushape:", u.shape, "kshape", K.shape)
         ud = np.fft.rfft(np.pad(u, (0, K.shape[0])))
         Kd = np.fft.rfft(np.pad(K, (0, u.shape[0])))
         out = ud * Kd
@@ -518,6 +521,7 @@ def example_legendre(N=8):
 if False:
     example_legendre()
 
+
 # The red line represents that curve we are approximating,
 # while the black bars represent the values of our hidden state.
 # Each is a coefficient for one element of the Legendre series
@@ -581,7 +585,6 @@ class SSMLayer(nn.Module):
 
     def __call__(self, u):
         if not self.decode:
-            # CNN Mode
             return non_circular_convolution(u, self.K) + self.D * u
         else:
             # RNN Mode
@@ -600,11 +603,18 @@ class SSMLayer(nn.Module):
 def cloneLayer(layer):
     return nn.vmap(
         layer,
-        in_axes=1,
-        out_axes=1,
+        in_axes=2,
+        out_axes=2,
         variable_axes={"params": 1, "cache": 1, "prime": 1},
         split_rngs={"params": True},
     )
+    # return nn.vmap(
+    #     layer,
+    #     in_axes=1,
+    #     out_axes=1,
+    #     variable_axes={"params": 1, "cache": 1, "prime": 1},
+    #     split_rngs={"params": True},
+    # )
 
 
 # We then initialize $A$ with the HiPPO matrix, and pass it into the stack of modules above,
@@ -613,6 +623,13 @@ def cloneLayer(layer):
 def SSMInit(N):
     return partial(cloneLayer(SSMLayer), A=make_HiPPO(N), N=N)
 
+# def batchLayer(seq):
+#     return nn.vmap(seq,
+#         in_axes=0,
+#         out_axes=0,
+#         variable_axes={"params": None, "dropout": None, "cache": 0, "prime": None},
+#         split_rngs={"params": True},
+#     )
 
 # This SSM Layer can then be put into a standard NN.
 # Here we add a block that pairs a call to an SSM with
@@ -634,7 +651,7 @@ class SequenceBlock(nn.Module):
         #     self.norm = nn.BatchNorm(axis_name='batch')
         # else:
         #     self.norm = nn.LayerNorm()
-        # self.norm = nn.BatchNorm(use_running_average=not self.training)
+        self.norm = nn.BatchNorm(use_running_average=not self.training)
         self.seq = self.layer(l_max=self.l_max, decode=self.decode)
         self.out = nn.Dense(self.d_model)
         self.drop = nn.Dropout(
@@ -644,24 +661,28 @@ class SequenceBlock(nn.Module):
         )
 
     def __call__(self, x):
-        # print("x:", x)
-        x1 = nn.BatchNorm(use_running_average=not self.training)(x)
-        print("x1:", jax.numpy.array_equal(x, x1))
+        x1 = self.norm(x)
+        # print("xxxx:", jax.numpy.array_equal(x, x1))
+        # print("x1 shape:", x1.shape)
         x2 = self.seq(x1)
+        # print("x2 later:", x.shape)
         z = self.drop(self.out(self.drop(nn.gelu(x2))))
+        # print("z later:", x.shape)
         return z + x
+
 
 # We can then stack a bunch of these blocks on top of each other
 # to produce a stack of SSM layers. This can be used for
 # classification or generation in the standard way as a Transformer.
 
-@partial(
-    nn.vmap,
-    variable_axes={"params": None, 'batch_stats': 0, "dropout": None, "cache": 0, "prime": None},
-    split_rngs={"params": False, "dropout": True},
-    in_axes=0,
-    out_axes=0,
-)
+# @partial(
+#     nn.vmap,
+#     variable_axes={"params": None, 'batch_stats': 0, "dropout": None, "cache": 0, "prime": None},
+#     split_rngs={"params": False, "dropout": True},
+#     in_axes=0,
+#     out_axes=0,
+# )
+
 class BatchStackedModel(nn.Module):
     layer: nn.Module
     d_output: int
@@ -689,14 +710,20 @@ class BatchStackedModel(nn.Module):
         ]
 
     def __call__(self, x):
-        print(x.shape)
+        # print("x:", x.shape)
         x = self.encoder(x)  # shape batch size x sequence len x hidden dimension
+        # print("x en:", x.shape)
         for layer in self.layers:
+            # print("x la:", x.shape)
             x = layer(x)
+        # print("x la later:", x.shape)
         if self.classification:
-            x = np.mean(x, axis=0)
+            x = np.mean(x, axis=1)
         x = self.decoder(x)
-        return nn.log_softmax(x, axis=-1)
+        # print("x decoder later:", x.shape)
+        s = nn.log_softmax(x, axis=-1)
+        # print("s la later:", s.shape)
+        return s
 
 
 # In Flax we add the batch dimension as a lifted transformation.
@@ -1229,9 +1256,18 @@ class S4Layer(nn.Module):
         # This is identical to SSM Layer
         if not self.decode:
             # CNN Mode
-            return non_circular_convolution(u, self.K) + self.D * u
+            print("u shape:", u.shape)
+            print("K shape:", self.K.shape)
+            # u batch size * max seq length
+            res = jax.vmap(non_circular_convolution, in_axes=(0, None), out_axes=0)(u, self.K)
+            print("res:", res.shape)
+            print("D:", self.D.shape)
+            return res + self.D * u
         else:
             # RNN Mode
+            print("RNN Mode")
+            print("u shape:", u.shape)
+            print("u[:, np.newaxis]:", u[:, np.newaxis].shape)
             x_k, y_s = scan_SSM(*self.ssm, u[:, np.newaxis], self.x_k_1.value)
             if self.is_mutable_collection("cache"):
                 self.x_k_1.value = x_k
@@ -1239,6 +1275,7 @@ class S4Layer(nn.Module):
 
 
 S4Layer = cloneLayer(S4Layer)
+
 
 # We initialize the model by computing a HiPPO DPLR initializer
 
